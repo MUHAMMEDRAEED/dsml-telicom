@@ -1,4 +1,4 @@
-# Title: Cancer Grade Prediction using Machine Learning
+# Title: Churn Prediction using Machine Learning
 
 ## Author: MUHAMMED RAEED MK
 
