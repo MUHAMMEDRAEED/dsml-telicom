@@ -21,10 +21,9 @@ from sklearn.pipeline import Pipeline
 import joblib
 
 # Step 1: Load and Explore Data
-file_path = 'telico.csv'  
+file_path = 'telico.csv'
 data = pd.read_csv(file_path)
 
-# View the first few rows and basic info
 print(data.head())
 print(data.info())
 print(data.isnull().sum())
@@ -63,7 +62,7 @@ X = data.drop('Churn', axis=1)
 y = data['Churn']
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42)
 
-# Step 6: Hyperparameter Tuning and Model Evaluation
+# Step 6: Hyperparameter Tuning
 classifiers_and_params = {
     'Logistic Regression': (LogisticRegression(max_iter=500), {
         'classifier__C': [0.01, 0.1, 1, 10],
@@ -87,6 +86,7 @@ classifiers_and_params = {
     })
 }
 
+# Dictionary to store the best estimators
 best_estimators = {}
 
 for name, (classifier, param_grid) in classifiers_and_params.items():
@@ -98,16 +98,21 @@ for name, (classifier, param_grid) in classifiers_and_params.items():
     grid_search = GridSearchCV(pipeline, param_grid, cv=3, verbose=1, n_jobs=-1)
     grid_search.fit(X_train, y_train)
     
-    print(f"\nBest Parameters for {name}: {grid_search.best_params_}")
-    
-    y_pred = grid_search.predict(X_test)
-    print(f"\n{name} Classification Report:\n", classification_report(y_test, y_pred))
-    print(f"{name} Accuracy Score: {accuracy_score(y_test, y_pred)}")
-    
-    # Store the best estimator
+    print(f"Best Parameters for {name}: {grid_search.best_params_}")
     best_estimators[name] = grid_search.best_estimator_
 
-# Step 7: Save the Best Model (Based on Random Forest in this example)
+# Step 7: Model Evaluation
+for name, model in best_estimators.items():
+    print(f"\nEvaluating {name}...")
+    
+    # Predict on the test set
+    y_pred = model.predict(X_test)
+    
+    # Print evaluation metrics
+    print(f"\n{name} Classification Report:\n", classification_report(y_test, y_pred))
+    print(f"{name} Accuracy Score: {accuracy_score(y_test, y_pred)}")
+
+# Step 8: Save the Best Model (Random Forest in this example)
 joblib.dump(best_estimators['Random Forest'], 'best_churn_prediction_model.pkl')
 
 # In[ ]:
